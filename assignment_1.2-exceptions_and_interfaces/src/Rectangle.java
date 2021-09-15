@@ -23,9 +23,9 @@ public class Rectangle implements Shape {
         System.out.println();
         int high_side;
         if (height < 20) {
-            high_side = 20;
+            high_side = 10;
         } else {
-            high_side = (int)Math.round(height);
+            high_side = (int)Math.round(height)/2;
         }
         for (int i = 0; i < high_side; i++) {
             System.out.println(line);
