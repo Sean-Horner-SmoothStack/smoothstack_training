@@ -1,0 +1,4 @@
+
+Here is some text to start with
+So we can see that the program is indeed appending instead of overwriting
+This is a final formatting test
