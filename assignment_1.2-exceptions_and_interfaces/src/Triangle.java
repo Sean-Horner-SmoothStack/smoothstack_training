@@ -1,43 +1,23 @@
 public class Triangle implements Shape {
 
-    private Double height;
-    private Double base;
+    private final Double height;
+    private final Double base;
 
     public Triangle(Double h, Double b) {
         height = h;
         base = b;
     }
 
-    public Double calculateArea() {
-        return 0.5 * base * height;
-    }
+    public Double calculateArea() { return 0.5 * base * height; }
 
     public void display() {
-//        int line_len;
-//        if (base > 15) {
-//            line_len = 15;
-//        } else {
-//            line_len = (int) Math.round(base);
-//        }
-//
-//        for (int i = line_len; i > 0; i--) {
-//            String spacing = new String(new char[line_len]).replace('\0', ' ');
-//            String line = new String(new char[i]).replace('\0', '*');
-//        }
-
-        System.out.print("""
-                ***************
-                 *************
-                  ***********
-                   *********
-                    *******
-                     *****
-                      ***
-                       *
-                """);
-
-
-
+        System.out.printf(
+                "The triangle has:%n" +
+                "\theight: %.2f units%n" +
+                "\tbase: %.2f units%n" +
+                "\tarea: %.3f units squared%n%n",
+                height, base, calculateArea()
+        );
     }
 
 }
