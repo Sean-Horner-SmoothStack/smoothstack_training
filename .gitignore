@@ -1,0 +1,4 @@
+# Removing IDEA config files
+
+/.idea
+*.iml
