@@ -14,11 +14,25 @@ public class DirectoryListing {
 
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
-        String dirPath = "test";
-        File dir = new File("test");
+        String dirPath = "";
+        File dir = null;
 
         if (args.length > 0) {
-            dirPath = args[0];
+            if (
+                args[0].equals("help") ||
+                args[0].equals("h") ||
+                args[0].equals("-h") ||
+                args[0].equals("--h") ||
+                args[0].equals("-help") ||
+                args[0].equals("--help")
+            )
+                System.out.println("""
+                        This program is for printing all of the subdirectories and files of a user-specified directory.
+                        Call this program with the absolute path to the desired directory.
+                        I.e. "java DirectoryListing "C:/programming_projects/"
+                        """);
+            else
+                dirPath = args[0];
         } else {
             // prompt the user for which directory to call
             System.out.println();
@@ -27,10 +41,16 @@ public class DirectoryListing {
             dirPath = input.nextLine();
         }
 
+        if (dirPath.equals("")) {
+            dirPath = "test";
+            System.out.println("Using default value: /test\n");
+        }
+
         try {
             dir = new File(dirPath);
         } catch (Exception e) {
             System.out.println("It looks like that file doesn't exist...");
+            dir = new File("test");
         }
 
         rFilePrint(dir);
