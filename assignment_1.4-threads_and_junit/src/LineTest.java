@@ -34,7 +34,7 @@ public class LineTest {
         }
 
         @Test
-        public void isParallel() {
+        public void areParallel() {
             Line line1 = new Line(0,5,1, 5);
             Line line2 = new Line(0,3,1,3);
             Assert.assertTrue(line1.parallelTo(line2));
