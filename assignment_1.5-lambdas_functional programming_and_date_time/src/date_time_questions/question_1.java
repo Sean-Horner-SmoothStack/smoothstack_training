@@ -1,7 +1,5 @@
 package date_time_questions;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.LocalDateTime;
 
 public class question_1 {
@@ -14,6 +12,7 @@ public class question_1 {
         int minute = 32;
         int second = 12;
 
+//      split object method
 //        LocalDate myBDay = LocalDate.of(year, month, day);
 //        LocalTime myBTime = LocalTime.of(hour, minute, second);
 //        LocalDateTime myBirthday = LocalDateTime.of(myBDay, myBTime);
