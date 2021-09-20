@@ -1,6 +1,7 @@
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class AssignmentTester {
@@ -84,5 +85,21 @@ public class AssignmentTester {
         List<String> result = assignment_4_functional.exingXs(input);
         Assert.assertEquals(expectedResult, result);
     }
+
+    @Test
+    public void a5_needsCondensing() {
+        int[] input = {1,2,2,2,3,5,2};
+        boolean expectedResult = true;
+        boolean result = assignment_5_recursion.needsCondensing(input);
+        Assert.assertEquals(expectedResult, result);
+    }
+
+//    @Test
+//    public void a5_arrayCondensing() {
+//        int[] input = {1,2,2,2,3,5,2};
+//        String expectedResult = "[1,6,3,5,2]";
+//        String result = Arrays.toString(assignment_5_recursion.arrayCondensing(input));
+//        Assert.assertEquals(expectedResult, result);
+//    }
 
 }
