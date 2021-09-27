@@ -1,0 +1,8 @@
+id,role_id,given_name,family_name,username,email,password,phone
+1,2,Tom,Tiddlton,tommy_t,Tom.Tiddlton@sparse.net,super456,3192312323
+2,3,Bomb,Bigleton,DaBomb243,DaBomb243@gmail.com,super456,9792312323
+3,2,Dom,Domingues,SenDomingues,dom_domingues@aol.com,super456,7742312323
+4,1,Rodrigo,Unoterte,UnoBetterThanDuo,UnoBetterThanDuo@protonmail.com,super456,3032312323
+5,1,Ernesto,Allene,FrenchByNature,E.Allene@fdr.fr,super456,2102312323
+6,3,Fredricko,BonnaSera,GoodEvening,Fred.B@college.edu,super456,2022312323
+7,4,Zeus,Almighty,up_above,admin@UtopiaAir.com,super456,7132312323

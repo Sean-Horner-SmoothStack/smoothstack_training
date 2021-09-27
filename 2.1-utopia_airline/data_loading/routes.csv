@@ -1,0 +1,9 @@
+id,origin_id,destination_id
+1,LAX,DEN
+2,LAX,MIA
+3,ANC,LAX
+4,DEN,LIT
+5,LIT,MIA
+6,DEN,MGM
+7,MGM,MIA
+8,DEN,ANC
