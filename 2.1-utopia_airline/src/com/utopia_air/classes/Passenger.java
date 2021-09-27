@@ -90,4 +90,18 @@ public class Passenger {
     public void setAddress(String address) {
         this.address = address;
     }
+
+    public String toString() {
+        return String.format("""
+                Passenger ID: %d    Booking ID: %d
+                Name: %s %s
+                DOB: %s         Gender: %s
+                Address: %s
+                """,
+                this.id, this.booking_id,
+                this.given_name, this.family_name,
+                this.dob.toString(), this.gender,
+                this.address
+                );
+    }
 }

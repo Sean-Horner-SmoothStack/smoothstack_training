@@ -132,7 +132,9 @@ public class PassengerDAO {
         return false;
     }
 
-    public static boolean passengerDelete(String passenger_id) {
+    public static boolean passengerDelete(Integer passenger_id) {
+        Integer booking_id = PassengerDAO.getPassenger(passenger_id).getBooking_id();
+        BookingDAO.setBookingInactive(booking_id);
         Connection conn = ConnectionFactory.getConnection();
         try {
             Statement stmt = conn.createStatement();

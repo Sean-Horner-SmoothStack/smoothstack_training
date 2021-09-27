@@ -415,8 +415,37 @@ class MenuObject {
     }
 
     private static void AdminMenu_Travelers() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("""
+                You've chosen the traveler administration menu.
+                The following people are passengers:
+                """);
+        List<Passenger> passengers = PassengerDAO.getAllPassengers();
+        for (Passenger passenger : passengers)
+            sb.append(passenger.toString());
+        sb.append("""
+                
+                What action would you like to take?
+                    1) Remove passenger
+                    
+                    0) Return to previous menu
+                
+                Please enter your selection:\s\s""");
+        System.out.print(sb);
 
-        AdminBase();
+        Integer selection = input.nextInt();
+        switch(selection) {
+            case 1 -> AdminMenu_RemoveTraveler();
+            default -> AdminBase();
+        }
+    }
+
+    private static void AdminMenu_RemoveTraveler() {
+        System.out.println("""
+                You've chosen to remove a traveler.
+                Please enter the traveler's ID number:\s\s""");
+        Integer passenger_id = input.nextInt();
+        PassengerDAO.passengerDelete(passenger_id);
     }
 
     private static void AdminMenu_Employees() {
@@ -447,11 +476,7 @@ class MenuObject {
             case 2 -> AdminMenu_EmployeeDeactivation();
             case 3 -> AdminMenu_UserRemoval();
             default -> AdminBase();
-
         }
-
-
-        AdminBase();
     }
 
     private static void AdminMenu_EmployeeActivation() {
@@ -469,6 +494,7 @@ class MenuObject {
 
         User update = UserDAO.getUser(user_id);
         update.setRole_id(3);
+        update.setEmail("empty");  // getting a char error at @
         UserDAO.updateUser(update);
 
         System.out.print("Employee activated successfully.");
@@ -481,6 +507,7 @@ class MenuObject {
 
         User update = UserDAO.getUser(user_id);
         update.setRole_id(2);
+        update.setEmail("empty");  // getting a char error at @
         UserDAO.updateUser(update);
 
         System.out.print("Employee deactivated successfully.");
