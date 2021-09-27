@@ -233,6 +233,7 @@ class MenuObject {
             case 4 -> AdminMenu_Airports();
             case 5 -> AdminMenu_Travelers();
             case 6 -> AdminMenu_Employees();
+            case 7 -> AdminMenu_OverrideCancellation();
             case 0 -> MainMenu();
             default -> System.out.println("uh oh");
         }
@@ -520,5 +521,22 @@ class MenuObject {
         UserDAO.deleteUser(user_id);
         System.out.print("Employee deleted successfully.");
         AdminBase();
+    }
+
+    private static void AdminMenu_OverrideCancellation() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("""
+                You've chosen the administrator override for cancellation.
+                Here are the bookings in the system that have been canceled.
+                """);
+        List<Booking> cancelledBookings = BookingDAO.getInactiveBookings();
+        for (Booking booking: cancelledBookings) {
+            sb.append(booking.toString());
+        }
+        sb.append("""
+                Enter the booking ID you would like to reactivate:\s\s""");
+
+        Integer booking_id = input.nextInt();
+        BookingDAO.setBookingActive(booking_id);
     }
 }

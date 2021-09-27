@@ -193,6 +193,20 @@ public class BookingDAO {
         return false;
     }
 
+    public static boolean setBookingActive(Integer booking_id) {
+        Connection conn = ConnectionFactory.getConnection();
+        try {
+            Statement stmt = conn.createStatement();
+            stmt.executeUpdate(String.format("""
+                    UPDATE booking
+                    SET is_active=1
+                    WHERE booking_id=%d""",
+                    booking_id ));
+            return true;
+        } catch (SQLException e) { e.printStackTrace(); }
+        return false;
+    }
+
     public static boolean bookingDelete(Booking booking) {
         boolean proceed = true;
         Integer booking_id = booking.getId();
