@@ -135,13 +135,17 @@ public class AirplaneDAO {
                     WHERE a1.id IS NULL
                     ORDER BY a.id
                     LIMIT 0, 1""");
-            Integer nextId = rs.getInt("firstAvailableId");
+            int nextId = rs.getInt("firstAvailableId");
 
-            stmt.executeUpdate(String.format("""
+            PreparedStatement ps = conn.prepareStatement("""
                     INSERT INTO airplane
-                    VALUES(%d, %d)""",
-                    nextId,
-                    airplane_type ));
+                    VALUES(?, ?)""");
+            ps.setInt(1, nextId);
+            ps.setInt(2, airplane_type);
+            ps.executeUpdate();
+
+            System.out.println("New airplane added successfully.");
+
             return nextId;
         } catch (SQLException e) { e.printStackTrace(); }
         return null;
@@ -168,12 +172,13 @@ public class AirplaneDAO {
         Integer airplane_id = airplane.getId();
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(String.format("""
+            PreparedStatement ps = conn.prepareStatement(
+                    """
                     DELETE
                     FROM airplane
-                    WHERE id=%d""",
-                    airplane_id ));
+                    WHERE id = ?""");
+            ps.setInt(1, airplane_id);
+            ps.executeUpdate();
             return true;
         } catch (SQLException e) { e.printStackTrace(); }
         return false;
@@ -182,12 +187,13 @@ public class AirplaneDAO {
     public static boolean airplaneDeleteById(Integer airplane_id) {
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(String.format("""
+            PreparedStatement ps = conn.prepareStatement(
+                    """
                     DELETE
                     FROM airplane
-                    WHERE id=%d""",
-                    airplane_id ));
+                    WHERE id = ?""");
+            ps.setInt(1, airplane_id);
+            ps.executeUpdate();
             return true;
         } catch (SQLException e) { e.printStackTrace(); }
         return false;
@@ -196,12 +202,13 @@ public class AirplaneDAO {
     public static boolean airplaneDeleteByType(Integer airplaneType_id) {
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(String.format("""
+            PreparedStatement ps = conn.prepareStatement("""
                     DELETE
                     FROM airplane
-                    WHERE type_id=%d""",
-                    airplaneType_id ));
+                    WHERE type_id = ?
+                    """);
+            ps.setInt(1, airplaneType_id);
+            ps.executeUpdate();
             return true;
         } catch (SQLException e) { e.printStackTrace(); }
         return false;

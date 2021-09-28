@@ -3,13 +3,9 @@ package com.utopia_air.dao;
 import com.utopia_air.classes.Airplane;
 import com.utopia_air.classes.AirplaneType;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public class AirplaneTypeDAO {
 
@@ -18,14 +14,16 @@ public class AirplaneTypeDAO {
      */
 
     public static boolean airplaneExists(Airplane airplane) {
-        Integer id = airplane.getId();
+        Integer airplane_id = airplane.getId();
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     SELECT *
                     FROM airplane
-                    WHERE id=%d""", id));
+                    WHERE id = ?
+                    """);
+            preparedStatement.setInt(1, airplane_id);
+            ResultSet rs = preparedStatement.executeQuery();
             return rs.next();
         } catch (SQLException e) { e.printStackTrace(); }
         return false;
@@ -34,11 +32,13 @@ public class AirplaneTypeDAO {
     public static boolean airplaneExists(Integer airplane_id) {
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     SELECT *
                     FROM airplane
-                    WHERE id=%d""", airplane_id));
+                    WHERE id = ?
+                    """);
+            preparedStatement.setInt(1, airplane_id);
+            ResultSet rs = preparedStatement.executeQuery();
             return rs.next();
         } catch (SQLException e) { e.printStackTrace(); }
         return false;
@@ -51,12 +51,13 @@ public class AirplaneTypeDAO {
     public static AirplaneType getAirplaneType(Integer type) {
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     SELECT *
                     FROM airplane_type
-                    WHERE id = %d""",
-                    type));
+                    WHERE id = ?
+                    """);
+            preparedStatement.setInt(1, type);
+            ResultSet rs = preparedStatement.executeQuery();
             if(rs.next()) {
                 AirplaneType plane_type = new AirplaneType();
                 plane_type.setId( rs.getInt("id") );
@@ -71,12 +72,13 @@ public class AirplaneTypeDAO {
     public static Integer getAirplaneCapacity(Integer airplane_id) {
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     SELECT *
                     FROM airplane_type
-                    WHERE id=%d""",
-                    airplane_id));
+                    WHERE id = ?
+                    """);
+            preparedStatement.setInt(1, airplane_id);
+            ResultSet rs = preparedStatement.executeQuery();
 
             if(rs.next()) {
                 return rs.getInt("max_capacity");
@@ -88,12 +90,13 @@ public class AirplaneTypeDAO {
     public static List<AirplaneType> getAirplanesByCap(Integer min_cap) {
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     SELECT *
                     FROM airplane_type
-                    WHERE max_capacity>=%d
-                    """, min_cap));
+                    WHERE max_capacity >= ?
+                    """);
+            preparedStatement.setInt(1, min_cap);
+            ResultSet rs = preparedStatement.executeQuery();
 
             List<AirplaneType> airplanes = new ArrayList<>();
             while(rs.next()) {
@@ -138,12 +141,13 @@ public class AirplaneTypeDAO {
     public static boolean airplaneTypeInsert(AirplaneType airplane) {
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     INSERT INTO airplane
-                    VALUES(%d, %d)""",
-                    airplane.getId(),
-                    airplane.getMax_capacity() ));
+                    VALUES(%d, %d)
+                    """);
+            preparedStatement.setInt(1, airplane.getId());
+            preparedStatement.setInt(2, airplane.getMax_capacity());
+            preparedStatement.executeUpdate();
         } catch (SQLException e) { e.printStackTrace(); }
         return false;
     }
@@ -155,13 +159,15 @@ public class AirplaneTypeDAO {
     public static boolean airplaneTypeUpdate(AirplaneType airplane) {
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     UPDATE airplane
-                    SET max_capacity=%d
-                    WHERE id=%d""",
-                    airplane.getMax_capacity(),
-                    airplane.getId() ));
+                    SET max_capacity = ?
+                    WHERE id = ?
+                    """);
+            preparedStatement.setInt(1, airplane.getMax_capacity());
+            preparedStatement.setInt(2, airplane.getId());
+            preparedStatement.executeUpdate();
+            return true;
         } catch (SQLException e) { e.printStackTrace(); }
         return false;
     }
@@ -177,12 +183,13 @@ public class AirplaneTypeDAO {
 
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     DELETE
                     FROM airplane_type
-                    WHERE id=%d""",
-                    airplaneType_id ));
+                    WHERE id = ?
+                    """);
+            preparedStatement.setInt(1, airplaneType_id);
+            preparedStatement.executeUpdate();
             return true;
         } catch (SQLException e) { e.printStackTrace(); }
         return false;
@@ -195,12 +202,13 @@ public class AirplaneTypeDAO {
 
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     DELETE
                     FROM airplane_type
-                    WHERE id=%d""",
-                    airplaneType_id ));
+                    WHERE id = ?
+                    """);
+            preparedStatement.setInt(1, airplaneType_id);
+            preparedStatement.executeUpdate();
             return true;
         } catch (SQLException e) { e.printStackTrace(); }
         return false;
@@ -211,12 +219,13 @@ public class AirplaneTypeDAO {
 
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     DELETE
                     FROM airplane_type
-                    WHERE id=%d""",
-                    airplaneType_id ));
+                    WHERE id = ?
+                    """);
+            preparedStatement.setInt(1, airplaneType_id);
+            preparedStatement.executeUpdate();
             return true;
         } catch (SQLException e) { e.printStackTrace(); }
         return false;

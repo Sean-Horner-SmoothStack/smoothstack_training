@@ -2,53 +2,41 @@ package com.utopia_air.dao;
 
 import com.utopia_air.classes.UserRole;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserRoleDAO {
 
     public static boolean roleExists(Integer role_id) {
-        Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(String.format("""
+            Connection conn = ConnectionFactory.getConnection();
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     SELECT *
                     FROM user_role
-                    WHERE id=%d
-                    """, role_id));
+                    WHERE id = ?
+                    """);
+            preparedStatement.setInt(1, role_id);
+            ResultSet rs = preparedStatement.executeQuery();
             return rs.next();
         } catch (SQLException e) { e.printStackTrace(); }
         return false;
     }
 
     public static boolean roleExists(UserRole userRole) {
-        Integer role_id = userRole.getId();
-        Connection conn = ConnectionFactory.getConnection();
-        try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(String.format("""
-                    SELECT *
-                    FROM user_role
-                    WHERE id=%d
-                    """, role_id));
-            return rs.next();
-        } catch (SQLException e) { e.printStackTrace(); }
-        return false;
+        return roleExists(userRole.getId());
     }
 
-    public static UserRole getUserRole(Integer id) {
-        Connection conn = ConnectionFactory.getConnection();
+    public static UserRole getUserRole(Integer role_id) {
         try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(String.format("""
+            Connection conn = ConnectionFactory.getConnection();
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     SELECT *
                     FROM user_role
-                    WHERE id=%d
-                    """, id));
+                    WHERE id = ?
+                    """);
+            preparedStatement.setInt(1, role_id);
+            ResultSet rs = preparedStatement.executeQuery();
 
             if(rs.next()) {
                 UserRole user_role = new UserRole();
@@ -57,22 +45,20 @@ public class UserRoleDAO {
 
                 return user_role;
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
+        } catch (SQLException e) { e.printStackTrace(); }
         return null;
     }
 
-    public static UserRole getUserRole(String name) {
-        Connection conn = ConnectionFactory.getConnection();
+    public static UserRole getUserRoleByName(String name) {
         try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(String.format("""
+            Connection conn = ConnectionFactory.getConnection();
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     SELECT *
                     FROM user_role
-                    WHERE name=%s
-                    """, name));
+                    WHERE name = ?
+                    """);
+            preparedStatement.setString(1, name);
+            ResultSet rs = preparedStatement.executeQuery();
 
             if(rs.next()) {
                 UserRole user_role = new UserRole();
@@ -81,10 +67,7 @@ public class UserRoleDAO {
 
                 return user_role;
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
+        } catch (SQLException e) { e.printStackTrace(); }
         return null;
     }
 
@@ -99,7 +82,6 @@ public class UserRoleDAO {
                     """);
 
             List<UserRole> roles = new ArrayList<>();
-
             while(rs.next()) {
                 UserRole user_role = new UserRole();
                 user_role.setId( rs.getInt("id") );
@@ -107,12 +89,8 @@ public class UserRoleDAO {
 
                 roles.add(user_role);
             }
-
             return roles;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
+        } catch (SQLException e) { e.printStackTrace(); }
         return null;
     }
 
@@ -121,34 +99,36 @@ public class UserRoleDAO {
         if(UserDAO.userExistsByRoleId(role_id))
             proceed = UserDAO.deleteUserByRoleId(role_id);
 
-        Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(String.format("""
+            Connection conn = ConnectionFactory.getConnection();
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     DELETE
                     FROM user_role
-                    WHERE id=%d""",
-                    role_id));
+                    WHERE id = ?
+                    """);
+            preparedStatement.setInt(1, role_id);
+            preparedStatement.executeUpdate();
             return proceed;
         } catch (SQLException e) { e.printStackTrace(); }
         return false;
     }
 
     public static boolean deleteUserRole(UserRole role) {
-        Integer role_id = role.getId();
-        boolean proceed = true;
-        if(UserDAO.userExistsByRoleId(role_id))
-            proceed = UserDAO.deleteUserByRoleId(role_id);
+        return deleteUserRole(role.getId());
+    }
 
-        Connection conn = ConnectionFactory.getConnection();
+    public static boolean deleteUserRoleByName(String name) {
+
         try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(String.format("""
+            Connection conn = ConnectionFactory.getConnection();
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     DELETE
                     FROM user_role
-                    WHERE id=%d""",
-                    role_id));
-            return proceed;
+                    WHERE id = ?
+                    """);
+            preparedStatement.setString(1, name);
+            preparedStatement.executeUpdate();
+            return true;
         } catch (SQLException e) { e.printStackTrace(); }
         return false;
     }

@@ -3,95 +3,46 @@ package com.utopia_air.dao;
 import com.utopia_air.classes.Booking;
 import com.utopia_air.classes.BookingPayment;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class BookingPaymentDAO {
 
-    public static boolean paymentExists(BookingPayment payment) {
-        Integer booking_id = payment.getBooking_id();
-        Connection conn = ConnectionFactory.getConnection();
-        try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(String.format("""
-                    SELECT *
-                    FROM booking_payment
-                    WHERE booking_id=%d""",
-                    booking_id ));
-
-            return rs.next();
-        } catch (SQLException e) { e.printStackTrace(); }
-        return false;
-    }
-
-    public static boolean paymentExists(Booking booking) {
-        Integer booking_id = booking.getId();
-        Connection conn = ConnectionFactory.getConnection();
-        try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(String.format("""
-                    SELECT *
-                    FROM booking_payment
-                    WHERE booking_id=%d""",
-                    booking_id ));
-
-            return rs.next();
-        } catch (SQLException e) { e.printStackTrace(); }
-        return false;
-    }
-
     public static boolean paymentExists(Integer booking_id) {
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     SELECT *
                     FROM booking_payment
-                    WHERE booking_id=%d""",
-                    booking_id ));
+                    WHERE booking_id = ?
+                    """);
+            preparedStatement.setInt(1, booking_id);
+            ResultSet rs = preparedStatement.executeQuery();
 
             return rs.next();
         } catch (SQLException e) { e.printStackTrace(); }
         return false;
     }
 
-    public static BookingPayment getBookingPayment(Booking booking) {
-        Integer booking_id = booking.getId();
-        Connection conn = ConnectionFactory.getConnection();
-        try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(String.format("""
-                    SELECT *
-                    FROM booking_payment
-                    WHERE booking_id=%d
-                    """, booking_id));
+    public static boolean paymentExists(BookingPayment payment) {
+        return paymentExists(payment.getBooking_id());
+    }
 
-            if(rs.next()) {
-                BookingPayment payment = new BookingPayment();
-                payment.setBooking_id( rs.getInt("booking_id") );
-                payment.setStripe_id( rs.getString("stripe_id") );
-                payment.setRefunded( rs.getBoolean("refunded") );
-
-                return payment;
-            }
-        } catch (SQLException e) { e.printStackTrace(); }
-
-        return null;
+    public static boolean paymentExists(Booking booking) {
+        return paymentExists(booking.getId());
     }
 
     public static BookingPayment getBookingPayment(Integer booking_id) {
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     SELECT *
                     FROM booking_payment
-                    WHERE booking_id=%d
-                    """, booking_id));
+                    WHERE booking_id = ?
+                    """);
+            preparedStatement.setInt(1, booking_id);
+            ResultSet rs = preparedStatement.executeQuery();
 
             if(rs.next()) {
                 BookingPayment payment = new BookingPayment();
@@ -102,8 +53,11 @@ public class BookingPaymentDAO {
                 return payment;
             }
         } catch (SQLException e) { e.printStackTrace(); }
-
         return null;
+    }
+
+    public static BookingPayment getBookingPayment(Booking booking) {
+        return getBookingPayment(booking.getId());
     }
 
     public static BookingPayment getBookingPaymentByStripe(String stripe_id) {
@@ -124,10 +78,7 @@ public class BookingPaymentDAO {
 
                 return payment;
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
+        } catch (SQLException e) { e.printStackTrace(); }
         return null;
     }
 
@@ -138,11 +89,10 @@ public class BookingPaymentDAO {
             ResultSet rs = stmt.executeQuery("""
                     SELECT *
                     FROM booking_payment
-                    WHERE refunded=1
+                    WHERE refunded = 1
                     """);
 
             List<BookingPayment> payments = new ArrayList<>();
-
             while(rs.next()) {
                 BookingPayment payment = new BookingPayment();
                 payment.setBooking_id( rs.getInt("booking_id") );
@@ -151,12 +101,8 @@ public class BookingPaymentDAO {
 
                 payments.add(payment);
             }
-
             return payments;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
+        } catch (SQLException e) { e.printStackTrace(); }
         return null;
     }
 
@@ -167,7 +113,7 @@ public class BookingPaymentDAO {
             ResultSet rs = stmt.executeQuery("""
                     SELECT *
                     FROM booking_payment
-                    WHERE refunded=0
+                    WHERE refunded = 0
                     """);
 
             List<BookingPayment> payments = new ArrayList<>();
@@ -195,16 +141,15 @@ public class BookingPaymentDAO {
 
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     INSERT INTO booking_payment
-                    VALUES (%d, %s, %d)""",
-                    payment.getBooking_id(), payment.getStripe_id(), payment.isRefunded()? 1 : 0));
+                    VALUES (?, ?, ?)
+                    """);
+            preparedStatement.setInt(1, payment.getBooking_id());
+            preparedStatement.setString(2, payment.getStripe_id());
+            preparedStatement.setInt(3, payment.isRefunded()? 1 : 0);
             return true;
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-
+        } catch (SQLException e) { e.printStackTrace(); }
         return false;
     };
 
@@ -219,71 +164,46 @@ public class BookingPaymentDAO {
 
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     UPDATE booking_payment
-                    SET stripe_id=%s, is_refunded=%d
-                    WHERE id=%d""",
-                    payment.getStripe_id(), payment.isRefunded()? 1 : 0, payment.getBooking_id()));
-            return true;
-        } catch (SQLException e) { e.printStackTrace(); }
-        return false;
-    }
-
-    public static boolean paymentDelete(BookingPayment payment) {
-        Integer booking_id = payment.getBooking_id();
-        Connection conn = ConnectionFactory.getConnection();
-        try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(String.format("""
-                    DELETE
-                    FROM booking_payment
-                    WHERE booking_id=%d""",
-                    booking_id ));
-
-            if (BookingDAO.bookingExists(booking_id))
-                BookingDAO.setBookingInactive(booking_id);
-
-            return true;
-        } catch (SQLException e) { e.printStackTrace(); }
-        return false;
-    }
-
-    public static boolean paymentDelete(Booking booking) {
-        Integer booking_id = booking.getId();
-        Connection conn = ConnectionFactory.getConnection();
-        try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(String.format("""
-                    DELETE
-                    FROM booking_payment
-                    WHERE booking_id=%d""",
-                    booking_id ));
-
-            if (BookingDAO.bookingExists(booking_id))
-                BookingDAO.setBookingInactive(booking_id);
-
+                    SET stripe_id = ?, is_refunded = ?
+                    WHERE id = ?
+                    """);
+            preparedStatement.setString(1, payment.getStripe_id());
+            preparedStatement.setInt(2, payment.isRefunded()? 1 : 0);
+            preparedStatement.setInt(3, payment.getBooking_id());
+            preparedStatement.executeUpdate();
             return true;
         } catch (SQLException e) { e.printStackTrace(); }
         return false;
     }
 
     public static boolean paymentDelete(Integer booking_id) {
+        boolean proceed = true;
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     DELETE
                     FROM booking_payment
-                    WHERE booking_id=%d""",
-                    booking_id ));
+                    WHERE booking_id = ?
+                    """);
+            preparedStatement.setInt(1, booking_id);
+            preparedStatement.executeUpdate();
 
             if (BookingDAO.bookingExists(booking_id))
-                BookingDAO.setBookingInactive(booking_id);
+                proceed = BookingDAO.setBookingInactive(booking_id);
 
-            return true;
+            return proceed;
         } catch (SQLException e) { e.printStackTrace(); }
         return false;
+    }
+
+    public static boolean paymentDelete(Booking booking) {
+        return paymentDelete(booking.getId());
+    }
+
+    public static boolean paymentDelete(BookingPayment payment) {
+        return  paymentDelete(payment.getBooking_id());
     }
 }
 

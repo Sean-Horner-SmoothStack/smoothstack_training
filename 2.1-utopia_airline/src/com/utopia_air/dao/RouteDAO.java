@@ -3,10 +3,7 @@ package com.utopia_air.dao;
 import com.utopia_air.classes.Airport;
 import com.utopia_air.classes.Route;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -127,15 +124,15 @@ public class RouteDAO {
     public static List<Route> getDestRoutes(String destination) {
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     SELECT *
                     FROM route
-                    WHERE destination_id=%s
-                    """, destination));
+                    WHERE destination_id = ?
+                    """);
+            preparedStatement.setString(1, destination);
+            ResultSet rs = preparedStatement.executeQuery();
 
             List<Route> routes = new ArrayList<>();
-
             while(rs.next()) {
                 Route route = new Route();
                 route.setId( rs.getInt("id") );
@@ -144,12 +141,8 @@ public class RouteDAO {
 
                 routes.add(route);
             }
-
             return routes;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
+        } catch (SQLException e) { e.printStackTrace(); }
         return null;
     }
 
@@ -180,12 +173,14 @@ public class RouteDAO {
     public static boolean routeInsert(Route route) {
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     INSERT INTO route
-                    VALUES(%d, %s, %s)""",
-                    route.getId(), route.getOrigin_id(), route.getDestination_id()
-            ));
+                    VALUES(?, ?, ?)
+                    """);
+            preparedStatement.setInt(1, route.getId());
+            preparedStatement.setString(2, route.getOrigin_id());
+            preparedStatement.setString(3, route.getDestination_id());
+            preparedStatement.executeUpdate();
             return true;
         } catch (SQLException e) { e.printStackTrace(); }
         return false;
@@ -194,13 +189,15 @@ public class RouteDAO {
     public static boolean routeUpdate(Route route) {
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     UPDATE route
-                    SET origin_id=%s, destination_id=%s
-                    WHERE id=%d""",
-                    route.getOrigin_id(), route.getDestination_id(), route.getId()
-            ));
+                    SET origin_id = ?, destination_id = ?
+                    WHERE id = ?
+                    """);
+            preparedStatement.setString(1, route.getOrigin_id());
+            preparedStatement.setString(2, route.getDestination_id());
+            preparedStatement.setInt(3, route.getId());
+            preparedStatement.executeUpdate();
             return true;
         } catch (SQLException e) { e.printStackTrace(); }
         return false;
@@ -223,30 +220,32 @@ public class RouteDAO {
     }
 
     public static boolean routeDelete(Integer route_id) {
-        Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(String.format("""
+            Connection conn = ConnectionFactory.getConnection();
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     DELETE
                     FROM route
-                    WHERE id=%d""",
-                    route_id
-            ));
+                    WHERE id = ?
+                    """);
+            preparedStatement.setInt(1, route_id);
+            preparedStatement.executeUpdate();
             return true;
         } catch (SQLException e) { e.printStackTrace(); }
         return false;
     }
 
     public static boolean routeDeleteByIata(String iata_id) {
-        Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(String.format("""
+            Connection conn = ConnectionFactory.getConnection();
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     DELETE
                     FROM route
-                    WHERE origin_id=%s || destination_id=%s""",
-                    iata_id, iata_id
-            ));
+                    WHERE origin_id = ?
+                        OR destination_id = ?
+                    """);
+            preparedStatement.setString(1, iata_id);
+            preparedStatement.setString(2, iata_id);
+            preparedStatement.executeUpdate();
             return true;
         } catch (SQLException e) { e.printStackTrace(); }
         return false;

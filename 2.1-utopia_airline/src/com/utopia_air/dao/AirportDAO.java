@@ -2,10 +2,7 @@ package com.utopia_air.dao;
 
 import com.utopia_air.classes.Airport;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,13 +11,13 @@ public class AirportDAO {
     public static boolean airportExists(String iata_id) {
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     SELECT *
                     FROM airport
-                    WHERE iata_id = '%s'""",
-                    iata_id));
-
+                    WHERE iata_id = ?
+                    """);
+            preparedStatement.setString(1, iata_id);
+            ResultSet rs = preparedStatement.executeQuery();
             return rs.next();
         } catch (SQLException e) { e.printStackTrace(); }
         return false;
@@ -29,12 +26,13 @@ public class AirportDAO {
     public static Airport getAirport(String iata_id) {
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     SELECT *
                     FROM airport
-                    WHERE iata_id = '%s'""",
-                    iata_id));
+                    WHERE iata_id = ?
+                    """);
+            preparedStatement.setString(1, iata_id);
+            ResultSet rs = preparedStatement.executeQuery();
 
             if(rs.next()) {
                 Airport airport = new Airport();
@@ -50,12 +48,13 @@ public class AirportDAO {
     public static String getAirportLocation(String iata_id) {
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     SELECT *
                     FROM airport
-                    WHERE iata_id = '%s'""",
-                    iata_id));
+                    WHERE iata_id = ?
+                    """);
+            preparedStatement.setString(1, iata_id);
+            ResultSet rs = preparedStatement.executeQuery();
 
             if(rs.next())
                 return rs.getString("city");
@@ -67,12 +66,13 @@ public class AirportDAO {
     public static String getAirportId(String city) {
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     SELECT *
                     FROM airport
-                    WHERE city = '%s'""",
-                    city));
+                    WHERE city = ?
+                    """);
+            preparedStatement.setString(1, city);
+            ResultSet rs = preparedStatement.executeQuery();
 
             if(rs.next())
                 return rs.getString("iata_id");
@@ -106,14 +106,14 @@ public class AirportDAO {
     public static boolean airportInsert(Airport airport) {
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     INSERT INTO airplane
-                    VALUES('%c%c%c', '%s')""",
-                    airport.getIata_id().charAt(0),
-                    airport.getIata_id().charAt(1),
-                    airport.getIata_id().charAt(2),
-                    airport.getCity() ));
+                    VALUES(?, ?)
+                    """);
+            preparedStatement.setString(1, airport.getIata_id());
+            preparedStatement.setString(2, airport.getCity());
+            preparedStatement.executeUpdate();
+            return true;
         } catch (SQLException e) { e.printStackTrace(); }
         return false;
     }
@@ -121,13 +121,15 @@ public class AirportDAO {
     public static boolean airportUpdate(Airport airport) {
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     UPDATE airplane
-                    SET city = '%s'
-                    WHERE iata_id = '%s'""",
-                    airport.getCity(),
-                    airport.getIata_id() ));
+                    SET city = ?
+                    WHERE iata_id = ?
+                    """);
+            preparedStatement.setString(1, airport.getCity());
+            preparedStatement.setString(2, airport.getIata_id());
+            preparedStatement.executeUpdate();
+            return true;
         } catch (SQLException e) { e.printStackTrace(); }
         return false;
     }
@@ -138,12 +140,13 @@ public class AirportDAO {
 
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     DELETE
                     FROM airport
-                    WHERE iata_id = '%s'""",
-                    airport.getIata_id()));
+                    WHERE iata_id = ?
+                    """);
+            preparedStatement.setString(1, airport.getIata_id());
+            preparedStatement.executeUpdate();
             return true;
         } catch (SQLException e) { e.printStackTrace(); }
         return false;
@@ -156,12 +159,13 @@ public class AirportDAO {
 
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     DELETE
-                    FROM airplane_type
-                    WHERE iata_id='%s'""",
-                    airport_id ));
+                    FROM airport
+                    WHERE iata_id = ?
+                    """);
+            preparedStatement.setString(1, airport_id);
+            preparedStatement.executeUpdate();
             return proceed;
         } catch (SQLException e) { e.printStackTrace(); }
         return false;

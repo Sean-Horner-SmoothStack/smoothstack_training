@@ -360,6 +360,7 @@ class MenuObject {
         System.out.print("Please enter the id of the route this flight will take:  ");
         Integer route_id = input.nextInt();
 
+        input.nextLine();
         System.out.print("Please enter the departure time you would like\n(Format MM-dd-yyyy HH:mm) : ");
         String dateString = input.nextLine();
 

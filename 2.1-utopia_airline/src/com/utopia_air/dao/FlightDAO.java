@@ -4,11 +4,7 @@ import com.utopia_air.classes.Flight;
 import com.utopia_air.classes.Flight_Table;
 import com.utopia_air.classes.Route;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.time.LocalDateTime;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,30 +13,49 @@ public class FlightDAO {
     public static boolean flightExists(Integer flight_id) {
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     SELECT *
                     FROM flight
-                    WHERE id=%d""",
-                    flight_id));
+                    WHERE id = ?
+                    """);
+            preparedStatement.setInt(1, flight_id);
+            ResultSet rs = preparedStatement.executeQuery();
             return rs.next();
         } catch (SQLException e) { e.printStackTrace(); }
         return false;
     }
 
     public static boolean flightExists(Flight flight) {
-        Integer flight_id = flight.getFlight_id();
-        Connection conn = ConnectionFactory.getConnection();
+        return flightExists(flight.getFlight_id());
+    }
+
+    public static boolean flightExists(Flight_Table flight) {
+        return flightExists(flight.getId());
+    }
+
+    public static Flight getFlightById(Integer flight_id) {
         try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(String.format("""
+            Connection conn = ConnectionFactory.getConnection();
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     SELECT *
                     FROM flight
-                    WHERE id=%d""",
-                    flight_id));
-            return rs.next();
+                    WHERE id = ?
+                    """);
+            preparedStatement.setInt(1, flight_id);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            if(rs.next()) {
+                Integer id = rs.getInt("id");
+                Integer route_id = rs.getInt("route_id");
+                Integer airplane_id = rs.getInt("airplane_id");
+                return new Flight(id, route_id, airplane_id);
+            }
         } catch (SQLException e) { e.printStackTrace(); }
-        return false;
+        return null;
+    }
+
+    public static Flight getFlightFromFlight_Table(Flight_Table flight) {
+        return getFlightById(flight.getId());
     }
 
     public static List<Flight> getAllFlights() {
@@ -63,6 +78,7 @@ public class FlightDAO {
                     	(SELECT r.id AS r_id, r.origin_id, r.destination_id
                     	 FROM route as r) AS route_info
                     		ON f.route_id = route_info.r_id""");
+
             while(rs.next()) {
                 Flight flight = new Flight();
                 flight.setFlight_id( rs.getInt("id") );
@@ -95,9 +111,8 @@ public class FlightDAO {
                 RouteDAO.routeInsert(
                         new Route( flight.getRoute_id(), flight.getOrigin_id(), flight.getDestination_id() ));
 
-            Flight_TableDAO.flight_TableInsert(new Flight_Table(flight.getRoute_id(), flight.getAirplane_id(),
-                    flight.getDeparture_time(), flight.getAirplane_id(), flight.getSeat_price()));
-
+            Flight_TableDAO.flight_TableInsert(new Flight_Table(flight));
+            return true;
         } catch (Exception e) { e.printStackTrace(); }
         return false;
 

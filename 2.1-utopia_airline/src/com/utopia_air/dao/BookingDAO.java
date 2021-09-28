@@ -2,10 +2,7 @@ package com.utopia_air.dao;
 
 import com.utopia_air.classes.Booking;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -182,75 +179,65 @@ public class BookingDAO {
     public static boolean setBookingInactive(Integer booking_id) {
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     UPDATE booking
-                    SET is_active=0
-                    WHERE booking_id=%d""",
-                    booking_id ));
+                    SET is_active = 0
+                    WHERE booking_id = ?
+                    """);
+            preparedStatement.setInt(1, booking_id);
+            preparedStatement.executeUpdate();
             return true;
         } catch (SQLException e) { e.printStackTrace(); }
         return false;
+    }
+
+    public static boolean setBookingInactive(Booking booking) {
+        return setBookingInactive(booking.getId());
     }
 
     public static boolean setBookingActive(Integer booking_id) {
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     UPDATE booking
-                    SET is_active=1
-                    WHERE booking_id=%d""",
-                    booking_id ));
+                    SET is_active = 1
+                    WHERE booking_id = ?
+                    """);
+            preparedStatement.setInt(1, booking_id);
+            preparedStatement.executeUpdate();
             return true;
         } catch (SQLException e) { e.printStackTrace(); }
         return false;
     }
 
-    public static boolean bookingDelete(Booking booking) {
-        boolean proceed = true;
-        Integer booking_id = booking.getId();
-        if(BookingAgentDAO.bookingAgentExists(booking_id))
-            proceed = BookingAgentDAO.bookingAgentDelete(booking_id);
-        if(BookingUserDAO.bookingUserExists(booking_id))
-            proceed = BookingUserDAO.bookingUserDelete(booking_id);
-        if(BookingGuestDAO.bookingGuestExists(booking_id))
-            proceed = BookingGuestDAO.bookingGuestDelete(booking_id);
-        if(BookingPaymentDAO.paymentExists(booking_id))
-            proceed = BookingPaymentDAO.paymentDelete(booking_id);
-
-        Connection conn = ConnectionFactory.getConnection();
-        try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(String.format("""
-                    DELETE
-                    FROM booking
-                    WHERE booking_id=%d""",
-                    booking_id ));
-            return proceed;
-        } catch (SQLException e) { e.printStackTrace(); }
-        return false;
+    public static boolean setBookingActive(Booking booking) {
+        return setBookingActive(booking.getId());
     }
 
     public static boolean bookingDelete(Integer booking_id) {
         boolean proceed = true;
         if(BookingAgentDAO.bookingAgentExists(booking_id))
             proceed = BookingAgentDAO.bookingAgentDelete(booking_id);
-        if(BookingUserDAO.bookingUserExists(booking_id))
+        if(BookingUserDAO.bookingUserExistsByUserId(booking_id))
             proceed = BookingUserDAO.bookingUserDelete(booking_id);
         if(BookingGuestDAO.bookingGuestExists(booking_id))
             proceed = BookingGuestDAO.bookingGuestDelete(booking_id);
 
         Connection conn = ConnectionFactory.getConnection();
         try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(String.format("""
+            PreparedStatement preparedStatement = conn.prepareStatement("""
                     DELETE
                     FROM booking
-                    WHERE booking_id=%d""",
-                    booking_id ));
+                    WHERE booking_id = ?
+                    """);
+            preparedStatement.setInt(1, booking_id);
+            preparedStatement.executeUpdate();
             return true;
         } catch (SQLException e) { e.printStackTrace(); }
         return false;
+    }
+
+    public static boolean bookingDelete(Booking booking) {
+        return bookingDelete(booking.getId());
     }
 }
